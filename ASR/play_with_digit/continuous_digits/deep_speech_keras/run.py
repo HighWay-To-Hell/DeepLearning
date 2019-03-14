@@ -1,9 +1,13 @@
 from ASR.play_with_digit.continuous_digits.deep_speech_keras import dataset, textfeaturizer, model, user_flags, decoder
 import keras
+from keras.utils import plot_model
 from absl import app as absl_app
 import os
 from keras import optimizers
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
+
+
+# TODO 添加只解码的功能，添加载入检查点的功能
 
 
 def run(_):
@@ -29,13 +33,16 @@ def run(_):
     optimizer = optimizers.RMSprop(lr=flags_obj.learning_rate)
     model_for_train.compile(loss={"ctc": lambda y_true, y_pred: y_pred}, optimizer=optimizer)
 
+    plot_model(model_for_predict, to_file='model_for_predict.png', show_shapes=True)
+    plot_model(model_for_train, to_file='model_for_train.png', show_shapes=True)
+
     early_stop_on_ler = EarlyStopingBaseOnLer(ler_threshold=flags_obj.ler_threshold, test_data_gen=test_data_gen,
                                               model_for_predict=model_for_predict, text_f=text_f,
                                               ler_test_batch_num=flags_obj.ler_test_batch_num)
 
     reduce_lr = ReduceLROnPlateau(monitor='loss', factor=0.7, patience=3, min_lr=0.0001, mode='min',
                                   cooldown=2, verbose=1)
-    checkpointer = ModelCheckpoint(monitor='loss', mode='min', verbose=1, save_best_only=True,
+    checkpointer = ModelCheckpoint(monitor='loss', mode='min', verbose=1, save_best_only=True, save_weights_only=True,
                                    filepath=flags_obj.model_ckpt_dir + "weights.{epoch:02d}-{loss:.2f}.hdf5"
                                    )
     # tensorboard = keras.callbacks.TensorBoard(log_dir='tb_log_dir')

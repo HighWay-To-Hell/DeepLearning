@@ -4,12 +4,15 @@ import keras.backend as K
 
 
 def decoder(logits, seq_len_after_conv, labels, labels_len, text_f):
-    logits = np.asarray(logits, dtype=float)
-    logits = np.transpose(logits, [1, 0, 2])
-    logits = tf.log(logits + tf.keras.backend.epsilon())
     logits = tf.cast(logits, dtype="float32")
+    logits = tf.transpose(logits, [1, 0, 2])  # time major
+
+    # readme (4)
+    logits = tf.log(logits + tf.keras.backend.epsilon())
     seq_len_after_conv = tf.squeeze(seq_len_after_conv, axis=-1)
     seq_len_after_conv = tf.cast(seq_len_after_conv, dtype="int32")
+
+    # 解码出来decoded[j]才是一个sparse tensor， 代表第j条最可能路径
     decoded, _ = tf.nn.ctc_beam_search_decoder(logits, seq_len_after_conv, beam_width=2,
                                                merge_repeated=False)
     labels_len_squeeze = tf.squeeze(labels_len)
@@ -18,11 +21,17 @@ def decoder(logits, seq_len_after_conv, labels, labels_len, text_f):
     ler = tf.reduce_mean(tf.edit_distance(decoded[0], labels_sparse))
     with tf.Session() as sess:
         decoded, ler = sess.run([decoded[0], ler])
+
+    # 现在decoded是一个sparse array, decoded[1]是values, values.shape=(total_label_len, 1)
+    # total_label_len = sum over len of tokens of each sample
     decoded_list = [text_f.index_to_token[i] for i in np.asarray(decoded[1])]
-    predict_label = [''] * decoded[2][0]
-    decoded_index = np.asarray(decoded[0])
+    predict_label = [''] * decoded[2][0]  # decoded[2]是一个shape，=(num of samples, max_label_len)
+
+    # decoded[0]是indices, indices.shape=(total_label_len, 2), 第一列指示sample，第二列指示token
+    decoded_indices = np.asarray(decoded[0])
     for i in range(len(decoded_list)):
-        predict_label[decoded_index[i, 0]] = predict_label[decoded_index[i, 0]] + decoded_list[i] + ' '
+        predict_label[decoded_indices[i, 0]] = predict_label[decoded_indices[i, 0]] + decoded_list[i] + ' '
+
     original_label = [""] * labels.shape[0]
     for i in range(len(original_label)):
         for j in range(labels_len[i][0]):

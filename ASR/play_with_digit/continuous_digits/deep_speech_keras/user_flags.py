@@ -1,8 +1,17 @@
 from absl import flags
-import ASR.play_with_digit.continuous_digits.deep_speech_keras.model as model
 
 
 def def_flags():
+    flags.DEFINE_bool(
+        name="resume_train_from_ckpt",
+        default=True,
+        help="如果model_ckpt_dir中有ckpt, 则从检查点继续训练"
+    )
+    flags.DEFINE_bool(
+        name="predict",
+        default=False,
+        help="只以predict模式，运行模型，请保证model_ckpt_dir中有保存好的weights"
+    )
     """跟目录相关的"""
     flags.DEFINE_string(
         name="model_ckpt_dir",
@@ -16,12 +25,12 @@ def def_flags():
     )
     flags.DEFINE_string(
         name="train_csv_path",
-        default=r"D:\DAYDAYUP\ASR\data\corpus\syn_continuous_digit_soft_noise_3_20\train/syn_csv_unit_test.csv",
+        default=r"D:\DAYDAYUP\ASR\data\corpus\syn_continuous_digit_soft_noise_3_20\train/syn_csv.csv",
         help="训练数据的csv文件的路径"
     )
     flags.DEFINE_string(
         name="test_csv_path",
-        default=r"D:\DAYDAYUP\ASR\data\corpus\syn_continuous_digit_soft_noise_3_20\test/syn_csv_unit_test.csv",
+        default=r"D:\DAYDAYUP\ASR\data\corpus\syn_continuous_digit_soft_noise_3_20\test/syn_csv.csv",
         help="测试数据的csv文件的路径"
     )
     flags.DEFINE_string(

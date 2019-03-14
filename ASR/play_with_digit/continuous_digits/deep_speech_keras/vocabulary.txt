@@ -1,4 +1,6 @@
-#词汇表，utf-8编码，带“#“的行会被忽略，请注意包含一个空格,如果是英文，要小写
+#词汇表，utf-8编码，带“#“的行会被忽略，如果是英文，要小写
+#当前不支持标点符号，如要将标点符号也作为label，请修改textfeaturizer.py中line.strip()这一行。
+#请注意包含一个空格, 程序根据token数设置num_classes
 #begin
 zero
 one
