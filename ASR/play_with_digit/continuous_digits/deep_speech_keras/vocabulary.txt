@@ -1,0 +1,14 @@
+#词汇表，utf-8编码，带“#“的行会被忽略，请注意包含一个空格,如果是英文，要小写
+#begin
+zero
+one
+two
+three
+four
+five
+six
+seven
+eight
+nine
+ 
+#end
