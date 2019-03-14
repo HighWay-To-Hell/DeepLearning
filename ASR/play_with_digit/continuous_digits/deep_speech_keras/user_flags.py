@@ -9,14 +9,14 @@ def def_flags():
     )
     flags.DEFINE_bool(
         name="predict",
-        default=False,
-        help="只以predict模式，运行模型，请保证model_ckpt_dir中有保存好的weights"
+        default=True,
+        help="只以predict模式运行模型，请保证model_ckpt_dir中有保存好的weights, 同时注意修改ler_test_batch_num这个flag"
     )
     """跟目录相关的"""
     flags.DEFINE_string(
         name="model_ckpt_dir",
         default=r"model_ckpt/",
-        help="保存模型检查点的目录"
+        help="保存模型检查点的目录，请在结尾带上斜杆"
     )
     flags.DEFINE_string(
         name="saved_model_dir",
@@ -25,12 +25,12 @@ def def_flags():
     )
     flags.DEFINE_string(
         name="train_csv_path",
-        default=r"D:\DAYDAYUP\ASR\data\corpus\syn_continuous_digit_soft_noise_3_20\train/syn_csv.csv",
+        default=r"D:\DAYDAYUP\ASR\data\corpus\syn_continuous_digit_soft_noise_3_20\train/syn_csv_unit_test.csv",
         help="训练数据的csv文件的路径"
     )
     flags.DEFINE_string(
         name="test_csv_path",
-        default=r"D:\DAYDAYUP\ASR\data\corpus\syn_continuous_digit_soft_noise_3_20\test/syn_csv.csv",
+        default=r"D:\DAYDAYUP\ASR\data\corpus\syn_continuous_digit_soft_noise_3_20\test/syn_csv_unit_test.csv",
         help="测试数据的csv文件的路径"
     )
     flags.DEFINE_string(
