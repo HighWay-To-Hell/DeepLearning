@@ -7,6 +7,7 @@ from keras import optimizers
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
 
 
+#
 def train():
     if not os.path.exists(flags_obj.model_ckpt_dir):
         os.mkdir(flags_obj.model_ckpt_dir)
@@ -47,6 +48,7 @@ def train():
             model_for_train.load_weights(flags_obj.model_ckpt_dir + "weights.h5")
     model_for_train.fit_generator(train_data_gen, epochs=flags_obj.epochs, verbose=1,
                                   callbacks=[early_stop_on_ler, reduce_lr, checkpointer])
+    model_for_train.save_weights(flags_obj.model_ckpt_dir + "weights_after_train_stopped.h5")
     model_for_predict.save(flags_obj.saved_model_dir + "model_for_predict.h5")
     model_for_train.save(flags_obj.saved_model_dir + "model_for_train.h5")
 
@@ -68,7 +70,7 @@ class EarlyStopingBaseOnLer(EarlyStopping):
 
     def on_batch_end(self, batch, logs=None):
         self.count += 1
-        if self.count == 100:
+        if self.count == 50:
             print("\ntesting ler...")
             (logits, seq_len_after_conv, labels, labels_len) = \
                 self.model_for_predict.predict_generator(self.test_data_gen, steps=self.ler_test_batch_num, verbose=1)
@@ -91,11 +93,21 @@ def predict():
                                           csv_path=flags_obj.test_csv_path,
                                           mode="test",
                                           batch_size=flags_obj.batch_size)
-    model_for_predict.load_weights(flags_obj.model_ckpt_dir + "weights.h5")
+    if os.path.exists(flags_obj.model_ckpt_dir + "weights_after_train_stopped.h5"):
+        model_for_predict.load_weights(flags_obj.model_ckpt_dir + "weights_after_train_stopped.h5")
+    elif os.path.exists(flags_obj.model_ckpt_dir + "weights.h5"):
+        model_for_predict.load_weights(flags_obj.model_ckpt_dir + "weights.h5")
+    else:
+        print(str(flags_obj.model_ckpt_dir) + "目录下无保存好的weights")
+        return
     print("\npredicting...")
-    (logits, seq_len_after_conv, labels, labels_len) = \
-        model_for_predict.predict_generator(test_data_gen, steps=flags_obj.ler_test_batch_num, verbose=1)
-    ler = decoder.decoder(logits, seq_len_after_conv, labels, labels_len, text_f=text_f)
+    ler = 0
+    for i in range(flags_obj.ler_test_batch_num):
+        print("predicting step: " + str(i))
+        (logits, seq_len_after_conv, labels, labels_len) = \
+            model_for_predict.predict_generator(test_data_gen, steps=1, verbose=0)
+        ler += decoder.decoder(logits, seq_len_after_conv, labels, labels_len, text_f=text_f)
+    ler = ler / flags_obj.ler_test_batch_num
     print("Ler: " + str(ler))
 
 

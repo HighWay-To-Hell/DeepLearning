@@ -23,6 +23,8 @@ class DataGenerator(Sequence):
         self.csv_path = csv_path
         self.mode = mode
         self.batch_size = batch_size
+        # TODO 详细解释一下这里
+        self.count = 0  # 由于keras model.predict的缺陷。需要自己维护一个idx
         self.entries = self.get_entries()
 
     def __len__(self):
@@ -46,10 +48,13 @@ class DataGenerator(Sequence):
                 useless in ctc model, just pass some fake data
 
         """
-        features, seq_len = self.get_spectrogram_and_seq_len(idx)
+
+        features, seq_len = self.get_spectrogram_and_seq_len(self.count)
         # 之所以不用原来的seq_len， 见model.py的build_model
         seq_len_after_conv = self.compute_length_after_conv(seq_len)
-        labels, labels_len = self.get_labels_and_labels_len(idx)
+        labels, labels_len = self.get_labels_and_labels_len(self.count)
+        if self.count == int(math.ceil(len(self.entries) / self.batch_size)):
+            self.count = 0
         return ({
                     "features": features,
                     "seq_len_after_conv": seq_len_after_conv,
@@ -144,7 +149,7 @@ class DataGenerator(Sequence):
             curr_time_steps = features[i].shape[0]
             if curr_time_steps < max_time_steps:
                 patch = np.zeros((max_time_steps - curr_time_steps, frequencies))
-                features[i] = np.vstack(features[i], patch)
+                features[i] = np.vstack((features[i], patch))
         return features
 
     def pad_labels(self, labels, max_labels_len):

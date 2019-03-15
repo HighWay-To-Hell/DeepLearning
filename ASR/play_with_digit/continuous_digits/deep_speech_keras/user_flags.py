@@ -25,12 +25,12 @@ def def_flags():
     )
     flags.DEFINE_string(
         name="train_csv_path",
-        default=r"D:\DAYDAYUP\ASR\data\corpus\syn_continuous_digit_soft_noise_3_20\train/syn_csv_unit_test.csv",
+        default=r"D:\DAYDAYUP\ASR\data\corpus\syn_continuous_digit_soft_noise_3_20\train/syn_csv.csv",
         help="训练数据的csv文件的路径"
     )
     flags.DEFINE_string(
         name="test_csv_path",
-        default=r"D:\DAYDAYUP\ASR\data\corpus\syn_continuous_digit_soft_noise_3_20\test/syn_csv_unit_test.csv",
+        default=r"D:\DAYDAYUP\ASR\data\corpus\syn_continuous_digit_soft_noise_3_20\test/syn_csv.csv",
         help="测试数据的csv文件的路径"
     )
     flags.DEFINE_string(
@@ -69,7 +69,7 @@ def def_flags():
     )
     flags.DEFINE_integer(
         name="epochs",
-        default=10,
+        default=20,
         help="max epochs"
     )
     flags.DEFINE_integer(
@@ -79,8 +79,8 @@ def def_flags():
     )
     flags.DEFINE_integer(
         name="ler_test_batch_num",
-        default=2,
-        help="在训练过程，每100个step，会用测试集测一下ler，测试集中用到的总数为ler_test_batch_num * batch_size,"
+        default=48,
+        help="在训练过程，每50个step，会用测试集测一下ler，测试集中用到的总数为ler_test_batch_num * batch_size,"
              "若乘积大于测试集的数量，会从头取。"
     )
     flags.DEFINE_float(
