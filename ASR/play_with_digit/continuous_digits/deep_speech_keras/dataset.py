@@ -4,7 +4,7 @@ import random
 from scipy import signal
 from scipy.io import wavfile
 import numpy as np
-import ASR.play_with_digit.continuous_digits.deep_speech_keras.textfeaturizer as textfeaturizer
+import textfeaturizer
 
 
 class DataGenerator(Sequence):
@@ -21,10 +21,13 @@ class DataGenerator(Sequence):
         self.text_featurizer = textfeaturizer.TextFeaturizer(vocabulary)
         self.sortagrad = sortagrad
         self.csv_path = csv_path
+        assert mode in ['train', 'test']
         self.mode = mode
-        self.batch_size = batch_size
-        # TODO 详细解释一下这里
-        self.count = 0  # 由于keras model.predict的缺陷。需要自己维护一个idx
+        if self.mode == 'test':
+            self.batch_size = 1
+            self.counter = 0
+        else:
+            self.batch_size = batch_size
         self.entries = self.get_entries()
 
     def __len__(self):
@@ -48,13 +51,17 @@ class DataGenerator(Sequence):
                 useless in ctc model, just pass some fake data
 
         """
-
-        features, seq_len = self.get_spectrogram_and_seq_len(self.count)
+        if self.mode == 'train':
+            index = idx
+        else:
+            index = self.counter
+            self.counter += 1
+            if self.counter == int(math.ceil(len(self.entries) / self.batch_size)):
+                self.counter = 0
+        features, seq_len = self.get_spectrogram_and_seq_len(index)
         # 之所以不用原来的seq_len， 见model.py的build_model
         seq_len_after_conv = self.compute_length_after_conv(seq_len)
-        labels, labels_len = self.get_labels_and_labels_len(self.count)
-        if self.count == int(math.ceil(len(self.entries) / self.batch_size)):
-            self.count = 0
+        labels, labels_len = self.get_labels_and_labels_len(index)
         return ({
                     "features": features,
                     "seq_len_after_conv": seq_len_after_conv,

@@ -1,4 +1,4 @@
-from ASR.play_with_digit.continuous_digits.deep_speech_keras import dataset, textfeaturizer, model, user_flags, decoder
+import dataset, textfeaturizer, model, user_flags, decoder
 import keras
 from keras.utils import plot_model
 from absl import app as absl_app
@@ -72,9 +72,15 @@ class EarlyStopingBaseOnLer(EarlyStopping):
         self.count += 1
         if self.count == 50:
             print("\ntesting ler...")
-            (logits, seq_len_after_conv, labels, labels_len) = \
-                self.model_for_predict.predict_generator(self.test_data_gen, steps=self.ler_test_batch_num, verbose=1)
-            ler = decoder.decoder(logits, seq_len_after_conv, labels, labels_len, text_f=self.text_f)
+            ler = 0
+            for i in range(flags_obj.ler_test_num):
+                print("testing " + str(i) + 'th sample')
+                (logits, seq_len_after_conv, labels, labels_len) = \
+                    self.model_for_predict.predict_generator(self.test_data_gen, steps=1, verbose=1)
+                curr_ler = decoder.decoder(logits, seq_len_after_conv, labels, labels_len, text_f=self.text_f)
+                print("curr_ler: " + str(curr_ler) + "\n")
+                ler += curr_ler
+            ler /= flags_obj.ler_test_num
             print("ler: " + str(ler))
             if ler <= self.ler_threshold:
                 self.model.stop_training = True
@@ -102,12 +108,15 @@ def predict():
         return
     print("\npredicting...")
     ler = 0
-    for i in range(flags_obj.ler_test_batch_num):
-        print("predicting step: " + str(i))
+    num_of_entries = test_data_gen.__len__()
+    for i in range(num_of_entries):
+        print("predicting " + str(i) + 'th sample')
         (logits, seq_len_after_conv, labels, labels_len) = \
             model_for_predict.predict_generator(test_data_gen, steps=1, verbose=0)
-        ler += decoder.decoder(logits, seq_len_after_conv, labels, labels_len, text_f=text_f)
-    ler = ler / flags_obj.ler_test_batch_num
+        curr_ler = decoder.decoder(logits, seq_len_after_conv, labels, labels_len, text_f=text_f)
+        print("curr_ler: " + str(curr_ler) + "\n")
+        ler += curr_ler
+    ler = ler / num_of_entries
     print("Ler: " + str(ler))
 
 

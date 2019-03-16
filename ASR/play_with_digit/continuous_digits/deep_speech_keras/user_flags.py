@@ -78,10 +78,10 @@ def def_flags():
         help="batch_size"
     )
     flags.DEFINE_integer(
-        name="ler_test_batch_num",
-        default=48,
-        help="在训练过程，每50个step，会用测试集测一下ler，测试集中用到的总数为ler_test_batch_num * batch_size,"
-             "若乘积大于测试集的数量，会从头取。"
+        name="ler_test_num",
+        default=64,
+        help="在训练过程，每50个step，会用测试集测一下ler，测试集中用到的总数为ler_test_num"
+             "若大于测试集的数量，会从头取。"
     )
     flags.DEFINE_float(
         name="ler_threshold",

@@ -15,7 +15,9 @@ def decoder(logits, seq_len_after_conv, labels, labels_len, text_f):
     # 解码出来decoded[j]才是一个sparse tensor， 代表第j条最可能路径
     decoded, _ = tf.nn.ctc_beam_search_decoder(logits, seq_len_after_conv, beam_width=2,
                                                merge_repeated=False)
-    labels_len_squeeze = tf.squeeze(labels_len)
+
+    labels_len_squeeze = tf.squeeze(labels_len, axis=1)
+    # labels_len_squeeze = tf.constant(labels_len)
     labels_sparse = K.ctc_label_dense_to_sparse(labels, labels_len_squeeze)
     labels_sparse = tf.cast(labels_sparse, dtype="int64")
     ler = tf.reduce_mean(tf.edit_distance(decoded[0], labels_sparse))
