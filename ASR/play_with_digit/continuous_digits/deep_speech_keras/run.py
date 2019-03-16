@@ -7,7 +7,6 @@ from keras import optimizers
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
 
 
-#
 def train():
     if not os.path.exists(flags_obj.model_ckpt_dir):
         os.mkdir(flags_obj.model_ckpt_dir)

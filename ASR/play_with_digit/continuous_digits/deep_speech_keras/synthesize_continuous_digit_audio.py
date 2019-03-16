@@ -4,8 +4,8 @@ import numpy as np
 import os
 import pickle
 
-wav_dir = r'C:\CMUSphinx\IsolatedDigits\wav'  # wav根目录
-output_dir = r'D:\DAYDAYUP\ASR\data\corpus\syn_continuous_digit_soft_noise_3_20\test'  # 输出目录
+wav_dir = r'/content/drive/My Drive/Colab/wav/single'  # wav根目录
+output_dir = r'/content/drive/My Drive/Colab/wav/continuous/train'  # 输出目录
 # num_of_syn_audio = 256  # 要合成的连续数字语音个数
 # min_syn_sec = 3  # 合成语音最短时长(s), 这里为了处理方便，令其大于max_digit_num
 # max_syn_sec = 3  #
