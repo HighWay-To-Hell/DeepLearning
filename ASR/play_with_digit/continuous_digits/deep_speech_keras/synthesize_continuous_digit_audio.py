@@ -126,7 +126,7 @@ def synthesize_continuous_digit_audio(wav_dir, output_dir):
     wav_data_len = len(wav_data)
     # syn_labels = []  # 对应的label，例如'one three four'
 
-    for curr_num in range(27, 31):
+    for curr_num in range(4, 20):
         syn_labels = []
         min_syn_sec = curr_num  # 合成语音最短时长(s), 这里为了处理方便，令其大于max_digit_num
         max_syn_sec = curr_num  #
